@@ -10,3 +10,15 @@ GREEN_COLOR = "#4CBB17"
 HOVER_GREEN_COLOR = "#0BDA51"
 MAIN_TITLE_FONT = ("Arial", 18)
 APP_TITLE = "XP - Excel to PDF"
+
+SIDEBAR_WIDTH = 215
+FRAME_WIDTH = PAGE_WIDTH - SIDEBAR_WIDTH
+FRAME_HEIGHT = PAGE_HEIGHT
+
+PADDING_X_FROM_SIDEBAR = 30
+
+EVEN_TREEVIEW_BG = "#FFFFFF"    # Background color for even rows in TreeView
+ODD_TREEVIEW_BG = "#E7EBF5"     # Background color for odd rows in TreeView
+
+
+EMPTY_VALUES_LIST = ["", " ", None]
