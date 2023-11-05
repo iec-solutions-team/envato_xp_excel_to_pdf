@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    
+  <!--
+    this worked, but problem its absolute path
+    /Users/smartretaildevit4/Envato Projects/xp_excel_to_pdf/templates
+  
+  
+  maybe use python to pass the path to the imports 
+  eg.
+  def static_file(filename, pdf=False):
+    # wkhtmltopdf only read absolute path
+    if pdf:
+        basedir = os.path.abspath(app.root_path)
+        return "".join([basedir, "/static/", filename])
+    else:
+        return url_for('static', filename = filename)  
+    -->
+
+    <link rel="stylesheet" href="{{abs_path}}/modren_table_assets/fonts/icomoon/style.css">
+
+    <link rel="stylesheet" href="{{abs_path}}/modren_table_assets/css/owl.carousel.min.css">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="{{abs_path}}/modren_table_assets/css/bootstrap.min.css">
+
+    <!-- Style -->
+    <link rel="stylesheet" href="{{abs_path}}/modren_table_assets/css/style_light.css">
+  </head>
+  <body>
+
+  <div class="content">
+
+    <div class="container">
+      <h1 class="text-center">{{main_title}}</h1>
+      <h2 class="text-center">{{sub_title}}</h2>
+
+      <div class="table-responsive custom-table-responsive  mt-5">
+
+        <table class="table custom-table">
+
+          <tbody>
+
+
+            {{table_rows}}
+
+          </tbody>
+        </table>
+      </div>
+
+
+    </div>
+
+  </div>
+
+  </body>
+</html>

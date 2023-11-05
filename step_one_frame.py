@@ -15,6 +15,7 @@ from config import (
     EVEN_TREEVIEW_BG,
     ODD_TREEVIEW_BG,
     EMPTY_VALUES_LIST,
+    NORMAL_FONT,
 )
 
 
@@ -24,16 +25,16 @@ class StepOneFrame(ctk.CTkFrame):
         self.place(x=215, y=0)
 
         self.controller = master
-        self.dialog_find_excel_file = None
+
         self.excel_path = None
 
         # print(f"\nself.controller.controller_excel_dataframe : {self.controller.controller_excel_dataframe}\n")
         # print(f"\nself.controller.controller_select_columns_holder : {self.controller.controller_select_columns_holder}\n")
 
-        self.column_entry_var = ctk.StringVar(None)
-        self.alternate_column_entry_var = ctk.StringVar(None)
-        self.prefix_entry_var = ctk.StringVar(None)
-        self.suffix_entry_var = ctk.StringVar(None)
+        self.column_entry_var = ctk.StringVar(self, None)
+        self.alternate_column_entry_var = ctk.StringVar(self, None)
+        self.prefix_entry_var = ctk.StringVar(self, None)
+        self.suffix_entry_var = ctk.StringVar(self, None)
 
         # Execute 'create_widgets' to load Gui elements
         self.create_widgets()
@@ -44,7 +45,19 @@ class StepOneFrame(ctk.CTkFrame):
 
     def dialog_window(self):
         root = ctk.CTkToplevel()
-        root.geometry("600x300")
+        # Get the screen width and height
+        screen_width = self.winfo_screenwidth()
+        screen_height = self.winfo_screenheight()
+
+        # Calculate the center of the screen
+        window_size = (600,300)
+        center_x = (screen_width - window_size[0]) // 2
+        center_y = (screen_height - window_size[1]) // 2
+
+        # Window Configuration
+        root.title("Find Excel File")
+        root.geometry(f"{window_size[0]}x{window_size[1]}+{center_x}+{center_y}")
+        root.resizable(False, False)
 
         excel_path_entry_var = ctk.StringVar(None)
         excel_path = None
@@ -143,7 +156,7 @@ class StepOneFrame(ctk.CTkFrame):
             root,
             text="Choose Excel File",
             command=on_click_choose_excel_file,
-            font=("Arial", 14),
+            font=NORMAL_FONT,
             width=80,
         )
         choose_excel_file_button.place(x=40, y=50)
@@ -153,7 +166,7 @@ class StepOneFrame(ctk.CTkFrame):
             root,
             width=300,
             textvariable=excel_path_entry_var,
-            font=("Arial", 14),
+            font=NORMAL_FONT,
             state="readonly",
         )
         excel_path_entry.place(x=200, y=50)
@@ -174,7 +187,7 @@ class StepOneFrame(ctk.CTkFrame):
         title_label = ctk.CTkLabel(
             root,
             text="Excel Sheet Name",
-            font=("Arial", 14),
+            font=NORMAL_FONT,
         )
         title_label.place(x=40, y=180)
 
@@ -182,7 +195,7 @@ class StepOneFrame(ctk.CTkFrame):
             root,
             width=300,
             textvariable=sheet_name_entry_var,
-            font=("Arial", 14),
+            font=NORMAL_FONT,
         )
         sheet_name_entry.configure(state="disabled")
         sheet_name_entry.place(x=200, y=180)
@@ -192,7 +205,7 @@ class StepOneFrame(ctk.CTkFrame):
             root,
             text="Read Excel Data",
             command=on_click_read_excel_data,
-            font=("Arial", 14),
+            font=NORMAL_FONT,
             width=250
         )
         read_excel_data_button.place(x=180, y=250)
@@ -204,7 +217,7 @@ class StepOneFrame(ctk.CTkFrame):
             self,
             text="Find Excel File",
             command=self.on_click_find_excel_button,
-            font=("Arial", 14),
+            font=NORMAL_FONT,
             width=220,
             height=40,
             )
@@ -214,7 +227,7 @@ class StepOneFrame(ctk.CTkFrame):
         self.excel_columns_label = ctk.CTkLabel(
             self,
             text="Excel Columns",
-            font=("Arial", 14),
+            font=NORMAL_FONT,
         )
         self.excel_columns_label.place(x=PADDING_X_FROM_SIDEBAR, y=100)
 
@@ -251,14 +264,14 @@ class StepOneFrame(ctk.CTkFrame):
         self.column_label = ctk.CTkLabel(
             self,
             text="Column",
-            font=("Arial", 14),
+            font=NORMAL_FONT,
         )
         self.column_label.place(x=410, y=85)
         self.column_entry = ctk.CTkEntry(
             self,
             width=250,
             textvariable=self.column_entry_var,
-            font=("Arial", 14),
+            font=NORMAL_FONT,
         )
         self.column_entry.place(x=310, y=110)
 
@@ -266,14 +279,14 @@ class StepOneFrame(ctk.CTkFrame):
         self.alternate_column_label = ctk.CTkLabel(
             self,
             text="Alternate Column Name",
-            font=("Arial", 14),
+            font=NORMAL_FONT,
         )
         self.alternate_column_label.place(x=645, y=85)
         self.alternate_column_entry = ctk.CTkEntry(
             self,
             width=250,
             textvariable=self.alternate_column_entry_var,
-            font=("Arial", 14),
+            font=NORMAL_FONT,
         )
         self.alternate_column_entry.place(x=590, y=110)
 
@@ -283,14 +296,14 @@ class StepOneFrame(ctk.CTkFrame):
         self.prefix_label = ctk.CTkLabel(
             self,
             text="Prefix Value",
-            font=("Arial", 14),
+            font=NORMAL_FONT,
         )
         self.prefix_label.place(x=390, y=145)
         self.prefix_entry = ctk.CTkEntry(
             self,
             width=250,
             textvariable=self.prefix_entry_var,
-            font=("Arial", 14),
+            font=NORMAL_FONT,
         )
         self.prefix_entry.place(x=310, y=170)
 
@@ -298,14 +311,14 @@ class StepOneFrame(ctk.CTkFrame):
         self.suffix_label = ctk.CTkLabel(
             self,
             text="Suffix Value",
-            font=("Arial", 14),
+            font=NORMAL_FONT,
         )
         self.suffix_label.place(x=675, y=145)
         self.suffix_entry = ctk.CTkEntry(
             self,
             width=250,
             textvariable=self.suffix_entry_var,
-            font=("Arial", 14),
+            font=NORMAL_FONT,
         )
         self.suffix_entry.place(x=590, y=170)
 
@@ -314,7 +327,7 @@ class StepOneFrame(ctk.CTkFrame):
             self,
             text="Add",
             command=self.on_click_add_button,
-            font=("Arial", 14),
+            font=NORMAL_FONT,
             width=250,
             )
         self.add_button.place(x=310, y=205)
@@ -323,7 +336,7 @@ class StepOneFrame(ctk.CTkFrame):
             self,
             text="Delete",
             command=self.on_click_delete_button,
-            font=("Arial", 14),
+            font=NORMAL_FONT,
             width=250,
             )
         self.delete_button.place(x=590, y=205)

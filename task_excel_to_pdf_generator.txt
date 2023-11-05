@@ -1,0 +1,44 @@
+
+
+Ticket : https://trello.com/c/KUVyHC2L/68-new-project-excel-to-pdf-generator-system
+
+
+Product Code
+Tasks:
+
+************************************
+Started at 20th Oct (7:30pm - 12am)
+- DONE - Build the GUI Dashboard of the project , to be same design as WhatsappBot dashboard but using Customtkinter, side menu will have 2 pages
+
+DONE - Handle logic for switching between First and Second pages
+
+- DONE - Add GUI elements of the first page (Find Data)
+
+- DONE - Fully Function the GUI elements of the first page
+
+- DONE - Design the GUI of second page
+
+- DONE - Create 1 simple template sample
+
+- DONE - Do screenshot of the simple template
+
+- DONE - second page - function the GUI element of image preview of the templates
+
+- DONE - Add GUI elements of the second page (Generate PDF)
+
+- DONE : fix bug, this excel columns populating will not display on table the full excel column name (only shows the first word)
+
+
+- ON GOING - Function the main logic - to generate PDF files
+************************************
+
+
+
+
+
+
+
+
+
+
+

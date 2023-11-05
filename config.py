@@ -9,6 +9,8 @@ HOVER_RED_COLOR = "#EE4B2B"
 GREEN_COLOR = "#4CBB17"
 HOVER_GREEN_COLOR = "#0BDA51"
 MAIN_TITLE_FONT = ("Arial", 18)
+NORMAL_FONT = ("Arial", 14)
+SMALL_FONT = ("Arial", 12)
 APP_TITLE = "XP - Excel to PDF"
 
 SIDEBAR_WIDTH = 215
@@ -22,3 +24,23 @@ ODD_TREEVIEW_BG = "#E7EBF5"     # Background color for odd rows in TreeView
 
 
 EMPTY_VALUES_LIST = ["", " ", None]
+
+
+TEMPLATES = {
+    "Simple": {
+        "html": "./templates/simple.html",
+        "image": "./templates/simple_preview.png",
+    },
+    "Zebra Striping": {
+        "html": "./templates/zebra_striping.html",
+        "image": "./templates/zebra_striping_preview.png",
+    },
+    "Modren Light": {
+        "html": "./templates/modren_table_light.html",
+        "image": "./templates/modren_table_light_preview.png",
+    },
+    "Modren Dark": {
+        "html": "./templates/modren_table_dark.html",
+        "image": "./templates/modren_table_dark_preview.png",
+    },
+}

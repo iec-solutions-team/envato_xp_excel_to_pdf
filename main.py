@@ -1,3 +1,5 @@
+import os
+import pandas as pd
 import customtkinter as ctk
 from CTkMessagebox import CTkMessagebox
 from config import (
@@ -12,6 +14,7 @@ from config import (
     HOVER_GREEN_COLOR,
     MAIN_TITLE_FONT,
     APP_TITLE,
+    TEMPLATES,
 )
 from step_one_frame import (
     StepOneFrame,
@@ -22,6 +25,29 @@ from step_two_frame import (
 from initial_page import (
     InitialPage,
 )
+from services import (
+    process_pdf_filename_format,
+    handle_folder_creation,
+    create_zip,
+    is_validate_filename_input,
+)
+
+
+# FOR PDF generation
+from jinja2 import Environment, FileSystemLoader
+import pdfkit
+env = Environment(loader=FileSystemLoader('.'))
+# Set the options for PDF generation
+pdf_options = {
+    'quiet': '',
+    'page-size': 'A4',
+    'margin-top': '0mm',
+    'margin-right': '0mm',
+    'margin-bottom': '0mm',
+    'margin-left': '0mm',
+    'enable-local-file-access': None
+}
+
 
 class Dashboard(ctk.CTk):
 
@@ -29,9 +55,20 @@ class Dashboard(ctk.CTk):
         super().__init__()
 
         # data controller
+        # used by step 1 page
         self.controller_excel_columns = []
         self.controller_excel_dataframe = None
         self.controller_select_columns_holder = None
+        # used by step 2 page
+        self.controller_selected_template = None
+        self.controller_selected_template_image_preview_path = "./templates/placeholder.png"
+        self.controller_template_main_title = ""
+        self.controller_template_sub_title = ""
+        self.controller_output_folder_name = "XP_PDF" # default folder name
+        self.controller_create_zipfile = 0 # default as false
+        self.controller_output_path = None
+        self.controller_output_filename = None
+        self.path_to_wkhtmltopdf = './wkhtmltopdf'
 
         # Get the screen width and height
         screen_width = self.winfo_screenwidth()
@@ -149,9 +186,207 @@ class Dashboard(ctk.CTk):
         self.step_two_frame = StepTwoFrame(self)
 
 
+    def validate_fields(self):
+        has_error = False
+        error_msg = ""
+
+        # Step 1 validations
+        if not isinstance(self.controller_excel_dataframe, pd.DataFrame):
+            has_error = True
+            error_msg = "Please find your excel file on (Step 1)"
+        elif len(self.controller_excel_dataframe) == 0:
+            has_error = True
+            error_msg = "Your excel file seems to be empty, please find another one on (Step 1)"
+        elif len(self.controller_excel_columns) == 0:
+            has_error = True
+            error_msg = "Your excel file seems to be empty, please find another one on (Step 1)"
+        elif not self.controller_select_columns_holder:
+            has_error = True
+            error_msg = "Please select your excel columns on (Step 1)"
+        # Step 2 validations
+        elif not self.controller_selected_template:
+            has_error = True
+            error_msg = "Please select your template on (Step 2)"
+        elif self.controller_output_folder_name in ("", " ", None):
+            has_error = True
+            error_msg = "Please type the output folder name on (Step 2)"
+        elif not self.controller_output_path:
+            has_error = True
+            error_msg = "Please choose your output path on (Step 2)"
+        elif not self.controller_output_filename:
+            has_error = True
+            error_msg = "Please type the output filename (Step 2)"
+        elif not is_validate_filename_input(self.controller_output_filename):
+            has_error = True
+            error_msg = "Your output filename is incorrect, please make sure it contains only (letters, numbers, spaces, underscores, and periods)"
+
+        return has_error, error_msg
+
+
     def on_start(self):
         print("\nclicked start (Generate the PDF) button\n")
 
+        BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        BASE_DIR = BASE_DIR + "/xp_excel_to_pdf/templates"
+
+        # Print the absolute path
+        print("\n\nAbsolute path:", BASE_DIR)
+        print("\n\n")
+
+        has_error, error_msg = self.validate_fields()
+        print(f"\nhas_error : {has_error}, error_msg : {error_msg}\n")
+        if has_error:
+            CTkMessagebox(
+                title="Error",
+                message=error_msg,
+                icon="warning",
+                option_1="Ok",
+            )
+            return
+
+        # TODO:
+        # DONE: 1 - start a loop over the dataframe that holds excel records
+        # DONE: 2 - have a dict:
+        #               - it's keys is the selected columns (use alternate column if found)
+        #               - it's value is the excel value + the prefix/suffix
+        # DONE: 3 - use this dict to create html code with value as <tr> and pass that to {{table_rows}}
+        # DONE: 4 - get the value of main_title and sub_title and pass them to {{main_title}} and to {{sub_title}}
+        # DONE: 5 - Process the output pdf filename for special formats
+        # DONE: 6 - handle pdf folder name and output path
+        # DONE: 7 - handle zip file creation
+        # DONE: 8 - handle selected template
+        # DONE: 9 - Add validations + display error dialog box to user:
+        #                       - validates on click on generate button, make sure all required fields are filled
+        #                       - make UI identifier if textbox is required
+        #                       - add validation on dialog of excel file selection if (file not exists, sheet is not exists or wrong)
+        #                       - add validation of output path if exists or not
+        #                       - add validation if output pdf file name is valid or not
+        # TODO!IMPORTANT: 10 - Clean up code
+
+        # WORKING ON: 11 - Do much test cases with different kind of excel files
+
+        # TODO!IMPORTANT: 12 - Add loading animation or identifer when some process is happening, as:
+        #                       - during program is reading the excel file
+        #                       - during program is generating pdf files
+        # DONE: 13 - Add success/error dialog message box to user, when actions complete or fails, eg. (completed generate pdf files)
+
+        # WORKING ON: 14 - Test the code in windows os
+                                # - TODO TODO !!FIX THE INCORRECT ALIGNED GUI TABLES ON WINDOWS OS
+
+        # TODO!IMPORTANT: 15 - Test creating exe and check it if runs
+
+        # DONE: 16 - Add more templates
+
+        # TODO!IMPORTANT: 17 - Read the TEMPLATES from json file instead of config.py, so that users can able add thier own templates and modify the json file
+
+        has_error, error_msg = handle_folder_creation(self.controller_output_path, self.controller_output_folder_name)
+        if has_error:
+            CTkMessagebox(
+                title="Error",
+                message=error_msg,
+                icon="warning",
+                option_1="Ok",
+            )
+            return
+
+        # ONLY FOR TESTING, FOR REAL USE - TAKE THE WHOLE RECORDS AND NOT ONLY THE FIRST 10 RECORDS
+        first_10_records = self.controller_excel_dataframe.head(10)
+        # for testing with 10 records
+        print(f"\n\nfirst_10_records : {first_10_records}\n\n")
+
+        main_title = self.controller_template_main_title
+        sub_title = self.controller_template_sub_title
+
+        print(f"\nmain_title : {main_title}\n")
+        print(f"\nsub_title : {sub_title}\n")
+        print(f"\ncontroller_select_columns_holder : {self.controller_select_columns_holder}\n")
+
+        selected_template = TEMPLATES[self.controller_selected_template]["html"]
+        print(f"\nselected_template : {selected_template}\n")
+
+        # raise Exception("-----STOP----")
+
+        template = env.get_template(selected_template)
+
+        # table_rows = ""
+
+
+        for index, row in first_10_records.iterrows():
+            # temp output demo filename
+            # output_pdf_filename = f"testing{index}.pdf"
+            table_rows = ""
+            render_values_dict = {
+                "main_title": main_title,
+                "sub_title": sub_title,
+                "abs_path": BASE_DIR,
+            }
+
+            output_pdf_filename = process_pdf_filename_format(
+                pdf_folder_path=self.controller_output_path,
+                pdf_folder_name=self.controller_output_folder_name,
+                pdf_filename_format=self.controller_output_filename,
+                all_excel_columns=self.controller_excel_columns,
+                excel_row=row,
+                excel_row_index=index,
+            )
+
+            for column_list in self.controller_select_columns_holder:
+                # column_list[0] is column name
+                # column_list[1] is alternate column name
+                # column_list[2] is prefix
+                # column_list[3] is suffix
+
+                column_name = column_list[0]
+                alternate = column_list[1]
+                prefix = column_list[2] or ""
+                suffix = column_list[3] or ""
+
+                table_column = alternate or column_name
+                table_cell = str(prefix) + str(row[column_name]) + str(suffix)
+
+                if self.controller_selected_template == "Modren Light":
+                    table_rows += f'''
+                    <tr class="spacer"><td colspan="100"></td></tr>
+                    <tr scope="row">
+                    <th scope="row"></th>
+                    <td>{table_column}</td>
+                    <td>{table_cell}</td>
+                    </tr>
+                    '''
+                else:
+                    table_rows += f"<tr><td>{table_column}</td><td>{table_cell}</td></tr>"
+
+            print(f"\noutput_pdf_filename : {output_pdf_filename}\n")
+
+            print(f"\n\ntable_rows : {table_rows}\n\n")
+
+            render_values_dict['table_rows'] = table_rows
+            html_content = template.render(render_values_dict)
+
+            # Generate the PDF from the HTML content
+            pdfkit.from_string(html_content, output_pdf_filename, options=pdf_options, configuration=pdfkit.configuration(wkhtmltopdf=self.path_to_wkhtmltopdf))
+
+        if int(self.controller_create_zipfile) == 1:
+            full_path = os.path.join(self.controller_output_path, self.controller_output_folder_name)
+            full_path_zip_file = f"{full_path}.zip"
+
+            if os.path.exists(full_path_zip_file):
+                CTkMessagebox(
+                    title="Warning",
+                    message=f"PDF files are generated, zip file is skipped as '{full_path_zip_file}' already exists.",
+                    icon="warning",
+                    option_1="Ok",
+                )
+                return
+            else:
+                create_zip(full_path, full_path_zip_file)
+
+        CTkMessagebox(
+            title="Success",
+            message=f"PDF files are generated successfully.",
+            icon="check",
+            option_1="Ok",
+        )
 
     def on_closing(self):
         msg = CTkMessagebox(title="Exit", message="Do you want to close the program?",
