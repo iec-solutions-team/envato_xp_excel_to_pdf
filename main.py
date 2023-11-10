@@ -1,4 +1,5 @@
 import os
+import threading
 import pandas as pd
 import customtkinter as ctk
 from CTkMessagebox import CTkMessagebox
@@ -133,6 +134,14 @@ class Dashboard(ctk.CTk):
         )
 
 
+        self.sidebar_loading_label = ctk.CTkLabel(
+            self.sidebar_frame,
+            text="Generating PDF Files...",
+            font=MAIN_TITLE_FONT,
+            text_color=BLUE_COLOR,
+        )
+
+
         self.sidebar_start_button = ctk.CTkButton(
             self.sidebar_frame,
             text="Generate the PDF",
@@ -163,6 +172,25 @@ class Dashboard(ctk.CTk):
             x=0,
             y=(PAGE_HEIGHT - 50),
         )
+
+    def update_loading_text(self):
+        if self.sidebar_loading_label.cget("text") == "Generating PDF Files...":
+            self.sidebar_loading_label.configure(text="Generating PDF Files")
+        else:
+            self.sidebar_loading_label.configure(text=self.sidebar_loading_label.cget("text") + ".")
+
+    def start_loading_animation(self):
+        self.sidebar_loading_label.place(x=20, y=(PAGE_HEIGHT - 140))
+        self.update_loading_text()
+
+        update_id = self.after(500, self.start_loading_animation)
+        # Store the update_id so we can cancel it later
+        self.sidebar_loading_label.update_id = update_id
+
+    def stop_loading_animation(self):
+        self.sidebar_loading_label.place_forget()
+        if hasattr(self.sidebar_loading_label, "update_id"):
+            self.after_cancel(self.sidebar_loading_label.update_id)
 
     # This function remove any active page on dashbaord, used to switch between pages
     def destory_all_pages(self):
@@ -223,7 +251,8 @@ class Dashboard(ctk.CTk):
         return has_error, error_msg
 
 
-    def on_start(self):
+    def handle_on_start(self):
+        self.start_loading_animation()
         print("\nclicked start (Generate the PDF) button\n")
 
         BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -236,11 +265,14 @@ class Dashboard(ctk.CTk):
         has_error, error_msg = self.validate_fields()
         print(f"\nhas_error : {has_error}, error_msg : {error_msg}\n")
         if has_error:
+            self.stop_loading_animation()
             CTkMessagebox(
                 title="Error",
                 message=error_msg,
                 icon="warning",
                 option_1="Ok",
+                option_focus=1,
+                sound=True,
             )
             return
 
@@ -263,14 +295,17 @@ class Dashboard(ctk.CTk):
         #                       - add validation if output pdf file name is valid or not
         # TODO!IMPORTANT: 10 - Clean up code
 
-        # WORKING ON: 11 - Do much test cases with different kind of excel files
+        # ON GOING: 11 - Do much test cases with different kind of excel files
 
-        # TODO!IMPORTANT: 12 - Add loading animation or identifer when some process is happening, as:
+        # >>>>>>>
+        # DONE!!!!!!!!: 12 - Add loading animation or identifer when some process is happening, as:
         #                       - during program is reading the excel file
         #                       - during program is generating pdf files
+        # >>>>>>>
+
         # DONE: 13 - Add success/error dialog message box to user, when actions complete or fails, eg. (completed generate pdf files)
 
-        # WORKING ON: 14 - Test the code in windows os
+        # ON HOLD: 14 - Test the code in windows os
                                 # - TODO TODO !!FIX THE INCORRECT ALIGNED GUI TABLES ON WINDOWS OS
 
         # TODO!IMPORTANT: 15 - Test creating exe and check it if runs
@@ -279,18 +314,26 @@ class Dashboard(ctk.CTk):
 
         # TODO!IMPORTANT: 17 - Read the TEMPLATES from json file instead of config.py, so that users can able add thier own templates and modify the json file
 
+        # TODO!IMPORTANT: 18 - Make the gui looking betters (sidebar buttons, loading text..)
+
+        # TODO!IMPORRTANT : 19 - remove 'first_10_records' and any testing code
+
         has_error, error_msg = handle_folder_creation(self.controller_output_path, self.controller_output_folder_name)
         if has_error:
+            self.stop_loading_animation()
             CTkMessagebox(
                 title="Error",
                 message=error_msg,
                 icon="warning",
                 option_1="Ok",
+                option_focus=1,
+                sound=True,
             )
             return
 
         # ONLY FOR TESTING, FOR REAL USE - TAKE THE WHOLE RECORDS AND NOT ONLY THE FIRST 10 RECORDS
-        first_10_records = self.controller_excel_dataframe.head(10)
+        # first_10_records = self.controller_excel_dataframe.head(10)
+        first_10_records = self.controller_excel_dataframe
         # for testing with 10 records
         print(f"\n\nfirst_10_records : {first_10_records}\n\n")
 
@@ -371,11 +414,14 @@ class Dashboard(ctk.CTk):
             full_path_zip_file = f"{full_path}.zip"
 
             if os.path.exists(full_path_zip_file):
+                self.stop_loading_animation()
                 CTkMessagebox(
                     title="Warning",
                     message=f"PDF files are generated, zip file is skipped as '{full_path_zip_file}' already exists.",
                     icon="warning",
                     option_1="Ok",
+                    option_focus=1,
+                    sound=True,
                 )
                 return
             else:
@@ -386,11 +432,29 @@ class Dashboard(ctk.CTk):
             message=f"PDF files are generated successfully.",
             icon="check",
             option_1="Ok",
+            option_focus=1,
+            sound=True,
         )
 
+        self.stop_loading_animation()
+
+    # Create a function to run the long-running function in a separate thread
+    def on_start(self):
+        # Create a thread to run the long-running function
+        thread = threading.Thread(target=self.handle_on_start)
+        # Start the thread
+        thread.start()
+
     def on_closing(self):
-        msg = CTkMessagebox(title="Exit", message="Do you want to close the program?",
-                        icon="question", option_1="Yes", option_2="No")
+        msg = CTkMessagebox(
+            title="Exit",
+            message="Do you want to close the program?",
+            icon="question",
+            option_1="Yes",
+            option_2="No",
+            option_focus=1,
+            sound=True,
+        )
         response = msg.get()
 
         if response=="Yes":

@@ -99,6 +99,8 @@ class DialogFindExcelFile(ctk.CTkToplevel):
                 message="Please provide sheet name to read.",
                 icon="warning",
                 option_1="Ok",
+                option_focus=1,
+                sound=True,
             )
             return
 
@@ -128,6 +130,8 @@ class DialogFindExcelFile(ctk.CTkToplevel):
                 message=error_msg,
                 icon="warning",
                 option_1="Ok",
+                option_focus=1,
+                sound=True,
             )
             return
 

@@ -115,6 +115,8 @@ class StepOneFrame(ctk.CTkFrame):
                     message="Please provide sheet name to read.",
                     icon="warning",
                     option_1="Ok",
+                    option_focus=1,
+                    sound=True,
                 )
                 return
 
@@ -144,6 +146,8 @@ class StepOneFrame(ctk.CTkFrame):
                     message=error_msg,
                     icon="warning",
                     option_1="Ok",
+                    option_focus=1,
+                    sound=True,
                 )
                 return
 
@@ -390,6 +394,8 @@ class StepOneFrame(ctk.CTkFrame):
                 message="Need provide column name on Column textbox",
                 icon="warning",
                 option_1="Ok",
+                option_focus=1,
+                sound=True,
             )
             return
 
@@ -399,6 +405,8 @@ class StepOneFrame(ctk.CTkFrame):
                 message="Invalid column provided on Column textbox",
                 icon="warning",
                 option_1="Ok",
+                option_focus=1,
+                sound=True,
             )
             return
 
@@ -422,6 +430,8 @@ class StepOneFrame(ctk.CTkFrame):
                 message="Please select column to delete",
                 icon="warning",
                 option_1="Ok",
+                option_focus=1,
+                sound=True,
             )
         else:
             selected_column = selected_item[0]
